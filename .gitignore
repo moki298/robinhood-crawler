@@ -9,3 +9,4 @@ node_modules
 .env.production.local
 
 stocks.json
+credentials.json
