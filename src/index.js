@@ -3,7 +3,10 @@ const util = require('util');
 
 const puppeteer = require('puppeteer');
 const writeFile = util.promisify(fs.writeFile);
+
+const selectors = require('../config/selectors.json');
 const userInfo = require('../config/credentials.json');
+const { getFormattedPriceInFloat, isReturnNegative, wait } = require('./utils');
 
 (async () => {
     // get cookies
@@ -18,7 +21,7 @@ const userInfo = require('../config/credentials.json');
 
     const page = await browser.newPage();
 
-      // set viewport
+    // set viewport
     await page.setViewport({
         width: 1340,
         height: 980,
@@ -35,18 +38,18 @@ const userInfo = require('../config/credentials.json');
 
     // await wait(3000)
     await Promise.all([
-        await page.waitForSelector('input[name="username"]'),
-        await page.waitForSelector('input[type="password"]')
+        await page.waitForSelector(selectors.loginPage.usernameField),
+        await page.waitForSelector(selectors.loginPage.passwordField)
     ])
 
     // fill in form
-    await page.type('input[name="username"]', userInfo.username, { delay: 100 })
-    await page.type('input[type="password"]', userInfo.password, { delay: 100 })
+    await page.type(selectors.loginPage.usernameField, userInfo.username, { delay: 100 })
+    await page.type(selectors.loginPage.passwordField, userInfo.password, { delay: 100 })
 
     // click Sign In
-    await page.click('button span')
+    await page.click(selectors.loginPage.signInButton)
 
-    await page.waitForSelector('input[name="mfa_code"]')
+    await page.waitForSelector(selectors.loginPage.mfaField)
 
     // get cookies and save them in a JSON file
 
@@ -60,15 +63,15 @@ const userInfo = require('../config/credentials.json');
 
     // also set `logged_in` cookie after logging in to the JSON file
 
-    await page.waitForFunction(() => {
-        let keyLength = document.querySelector('input[name="mfa_code"]').value.length
+    await page.waitForFunction((mfaField) => {
+        let keyLength = document.querySelector(mfaField).value.length
         if (keyLength === 6) {
             return true
         }
-    }, 1000)
+    }, 1000, selectors.loginPage.mfaField)
     // await wait(15000)
 
-    await page.click('button[type="submit"]')
+    await page.click(selectors.loginPage.continueButton)
 
     await page.waitForNavigation()
     // await wait(5000)
@@ -79,7 +82,7 @@ const userInfo = require('../config/credentials.json');
     })
     // await wait(5000)
 
-    const data = await page.$$eval('.col-13', (arr) => {
+    const scrappedStockData = await page.$$eval('.col-13', (arr) => {
         return arr.map((div, index) => {
             // two elements with className col-13, we need the second one
             if (index === 1) {
@@ -94,30 +97,38 @@ const userInfo = require('../config/credentials.json');
             }
         })
     })
-    
-    // async data => {
-    const stocks = data[1].map(stockString => {
-        let  formattedStockData = stockString.split('\n')
+
+    const stocks = scrappedStockData[1].map(stockString => {
+        let formattedStockData = stockString.split('\n')
+        let averageCost = getFormattedPriceInFloat(formattedStockData[4])
+        let currentMarketPrice = getFormattedPriceInFloat(formattedStockData[3])
+        let equity = getFormattedPriceInFloat(formattedStockData[6])
+        let shareCount = Number(formattedStockData[2])
+        let totalReturn = isReturnNegative(averageCost, currentMarketPrice, shareCount) ? -(getFormattedPriceInFloat(formattedStockData[5])) : getFormattedPriceInFloat(formattedStockData[5])
+
         return {
+            averageCost,
+            currentMarketPrice,
+            equity,
             name: formattedStockData[0],
+            shareCount,
             tickrSymbol: formattedStockData[1],
-            shareCount: formattedStockData[2],
-            currentMarketPrice: formattedStockData[3],
-            averageCost: formattedStockData[4],
-            totalReturn: formattedStockData[5],
-            equity: formattedStockData[6]
+            totalReturn
         }
     })
 
-    let json = JSON.stringify({stocks}, null, 4)
-    
+    const timeStampMilliSecs = new Date().getTime()
+
+    let data = {
+        stocks,
+        timeStampMilliSecs,
+    }
+
+    let json = JSON.stringify({ data }, null, 4)
+
     await writeFile(`${__dirname}/../data/stocks.json`, json, 'utf8')
 
     // await browser.close();
 })().then().catch((err) => {
     console.log(`${err}`)
 });
-
-function wait(timeInMilliSecs) {
-    return new Promise(resolve => setTimeout(resolve, timeInMilliSecs));
-}

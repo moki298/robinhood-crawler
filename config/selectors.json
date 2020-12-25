@@ -1,4 +1,10 @@
 {
-    "loginPage": {},
+    "loginPage": {
+        "usernameField": "input[name='username']",
+        "passwordField": "input[type='password']",
+        "signInButton": "button span",
+        "mfaField": "input[name='mfa_code']",
+        "continueButton": "button[type='submit']"
+    },
     "accountPage": {}
 }
