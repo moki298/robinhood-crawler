@@ -6,7 +6,7 @@ const writeFile = util.promisify(fs.writeFile);
 
 const selectors = require('../config/selectors.json');
 const userInfo = require('../config/credentials.json');
-const { getFormattedPriceInFloat, isReturnNegative, wait } = require('./utils');
+const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, stripWhiteSpace, lowerCaseFirstLetter } = require('./utils');
 
 (async () => {
     // get cookies
@@ -82,20 +82,30 @@ const { getFormattedPriceInFloat, isReturnNegative, wait } = require('./utils');
     })
     // await wait(5000)
 
-    const scrappedStockData = await page.$$eval('.col-13', (arr) => {
+    const scrappedStockData = await page.$$eval(selectors.accountPage.stocksTable, (arr) => {
         return arr.map((div, index) => {
-            // two elements with className col-13, we need the second one
             if (index === 1) {
-
                 let childNodes = div.firstChild.childNodes[1].childNodes
 
                 return Array.from(childNodes).map(node => {
                     return node.innerText
                 })
-            } else {
-                return null
+            } else if (index == 0) {
+                return Array.from(div.childNodes).map(node => {
+                    return node.innerText
+                })
             }
         })
+    })
+
+    const totalPortfolioValue = {}
+
+    scrappedStockData[0].map(valueString => {
+        let formattedValueData = valueString.split('\n')
+        let valueTypeName = stripWhiteSpace(formattedValueData[0])
+        valueTypeName = lowerCaseFirstLetter(valueTypeName)
+
+        totalPortfolioValue[valueTypeName] = getFormattedPriceInFloat(formattedValueData[2])
     })
 
     const stocks = scrappedStockData[1].map(stockString => {
@@ -117,11 +127,13 @@ const { getFormattedPriceInFloat, isReturnNegative, wait } = require('./utils');
         }
     })
 
-    const timeStampMilliSecs = new Date().getTime()
+    const timeStampInMilliSecs = getCurrentTimeInMilliSecs()
 
     let data = {
+        humanReadableTimeStampInLocalZone: new Date().toLocaleString(),
+        totalPortfolioValue,
         stocks,
-        timeStampMilliSecs,
+        timeStampInMilliSecs
     }
 
     let json = JSON.stringify({ data }, null, 4)

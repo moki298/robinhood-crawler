@@ -16,3 +16,15 @@ exports.isReturnNegative = function (averageCost, currentMarketPrice, shareCount
 exports.wait = function (timeInMilliSecs) {
     return new Promise(resolve => setTimeout(resolve, timeInMilliSecs));
 }
+
+exports.getCurrentTimeInMilliSecs = function () {
+    return new Date().getTime()
+}
+
+exports.stripWhiteSpace = function (string) {
+    return string.replace(/\s+/g, '')
+}
+
+exports.lowerCaseFirstLetter = function (string) {
+    return string.charAt(0).toLowerCase() + string.slice(1)
+}

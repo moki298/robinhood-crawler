@@ -6,5 +6,8 @@
         "mfaField": "input[name='mfa_code']",
         "continueButton": "button[type='submit']"
     },
-    "accountPage": {}
+    "accountPage": {
+        "portfolioSummaryTable": ".col-13",
+        "stocksTable": ".col-13"
+    }
 }
