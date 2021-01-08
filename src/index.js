@@ -6,7 +6,7 @@ const writeFile = util.promisify(fs.writeFile);
 
 const selectors = require('../config/selectors.json');
 const userInfo = require('../config/credentials.json');
-const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, stripWhiteSpace, lowerCaseFirstLetter } = require('./utils');
+const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, stripWhiteSpace, lowerCaseFirstLetter, writeToExcelSheet } = require('./utils');
 
 (async () => {
     // get cookies
@@ -138,9 +138,11 @@ const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, s
 
     let json = JSON.stringify({ data }, null, 4)
 
+    await writeToExcelSheet(stocks)
+
     await writeFile(`${__dirname}/../data/stocks.json`, json, 'utf8')
 
-    // await browser.close();
+    await browser.close();
 })().then().catch((err) => {
     console.log(`${err}`)
 });
