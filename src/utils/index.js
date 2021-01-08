@@ -1,5 +1,28 @@
-const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const fs = require('fs');
 const path = require('path');
+
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+
+exports.createDataFolderIfRequired = function () {
+    return new Promise((resolve, reject) => {
+        fs.mkdir(`${path.join(__dirname, '/../../data')}`, {}, function (err) {
+            if (err) {
+                if (err.code == 'EEXIST') {
+                    // resolve if folder already exists
+                    resolve()
+                } else {
+                    reject(err)
+                }
+            } else {
+                resolve()
+            }
+        });
+    })
+}
+
+exports.getCurrentTimeInMilliSecs = function () {
+    return new Date().getTime()
+}
 
 exports.getFormattedPriceInFloat = function (value) {
     // remove $ symnbol in first char and any commas
@@ -16,20 +39,16 @@ exports.isReturnNegative = function (averageCost, currentMarketPrice, shareCount
     }
 }
 
-exports.wait = function (timeInMilliSecs) {
-    return new Promise(resolve => setTimeout(resolve, timeInMilliSecs));
-}
-
-exports.getCurrentTimeInMilliSecs = function () {
-    return new Date().getTime()
+exports.lowerCaseFirstLetter = function (string) {
+    return string.charAt(0).toLowerCase() + string.slice(1)
 }
 
 exports.stripWhiteSpace = function (string) {
     return string.replace(/\s+/g, '')
 }
 
-exports.lowerCaseFirstLetter = function (string) {
-    return string.charAt(0).toLowerCase() + string.slice(1)
+exports.wait = function (timeInMilliSecs) {
+    return new Promise(resolve => setTimeout(resolve, timeInMilliSecs));
 }
 
 exports.writeToExcelSheet = function (data) {

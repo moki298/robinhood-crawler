@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const util = require('util');
 
 const puppeteer = require('puppeteer');
@@ -6,7 +7,7 @@ const writeFile = util.promisify(fs.writeFile);
 
 const selectors = require('../config/selectors.json');
 const userInfo = require('../config/credentials.json');
-const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, stripWhiteSpace, lowerCaseFirstLetter, writeToExcelSheet } = require('./utils');
+const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, stripWhiteSpace, lowerCaseFirstLetter, writeToExcelSheet, createDataFolderIfRequired } = require('./utils');
 
 (async () => {
     // get cookies
@@ -138,11 +139,19 @@ const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, s
 
     let json = JSON.stringify({ data }, null, 4)
 
-    await writeToExcelSheet(stocks)
+    // create data folder if it doesn't exist
 
-    await writeFile(`${__dirname}/../data/stocks.json`, json, 'utf8')
+    await createDataFolderIfRequired().catch((err) => {
+        console.log(err)
+    })
+
+    await writeToExcelSheet(stocks).catch((err) => {
+        console.log(err)
+    })
+
+    await writeFile(`${path.join(__dirname, '/../data/stocks.json')}`, json, 'utf8')
 
     await browser.close();
 })().then().catch((err) => {
-    console.log(`${err}`)
+    console.log(err)
 });
