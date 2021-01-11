@@ -24,9 +24,28 @@ exports.getCurrentTimeInMilliSecs = function () {
     return new Date().getTime()
 }
 
-exports.getFormattedPriceInFloat = function (value) {
-    // remove $ symnbol in first char and any commas
-    return parseFloat(value.substring(1).replace(',', ''));
+exports.getFormattedPriceInFloat = function (value, charCountToRemove) {
+    // string format for below case: '+$123.00'
+    if (charCountToRemove === 2) {
+        if (value[0] === '+') {
+            return parseFloat(value.substring(charCountToRemove).replace(',', ''));
+        } else if (value[0] === '-') {
+            return -(parseFloat(value.substring(charCountToRemove).replace(',', '')));
+        }
+    }
+
+    // remove $ symbol in first char and any commas
+    return parseFloat(value.substring(charCountToRemove).replace(',', ''));
+}
+
+exports.getSumOfArray = function (list) {
+    let sum = 0
+
+    list.map(value => {
+        sum = sum + value
+    })
+
+    return sum
 }
 
 exports.isReturnNegative = function (averageCost, currentMarketPrice, shareCount) {

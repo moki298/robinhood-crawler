@@ -7,7 +7,8 @@ const writeFile = util.promisify(fs.writeFile);
 
 const selectors = require('../config/selectors.json');
 const userInfo = require('../config/credentials.json');
-const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, stripWhiteSpace, lowerCaseFirstLetter, writeToExcelSheet, createDataFolderIfRequired } = require('./utils');
+const utils = require('./utils');
+const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, getSumOfArray, stripWhiteSpace, lowerCaseFirstLetter, writeToExcelSheet, createDataFolderIfRequired } = utils;
 
 (async () => {
     // get cookies
@@ -106,16 +107,16 @@ const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, s
         let valueTypeName = stripWhiteSpace(formattedValueData[0])
         valueTypeName = lowerCaseFirstLetter(valueTypeName)
 
-        totalPortfolioValue[valueTypeName] = getFormattedPriceInFloat(formattedValueData[2])
+        totalPortfolioValue[valueTypeName] = getFormattedPriceInFloat(formattedValueData[2], 1)
     })
 
     const stocks = scrappedStockData[1].map(stockString => {
         let formattedStockData = stockString.split('\n')
-        let averageCost = getFormattedPriceInFloat(formattedStockData[4])
-        let currentMarketPrice = getFormattedPriceInFloat(formattedStockData[3])
-        let equity = getFormattedPriceInFloat(formattedStockData[6])
+        let averageCost = getFormattedPriceInFloat(formattedStockData[4], 1)
+        let currentMarketPrice = getFormattedPriceInFloat(formattedStockData[3], 1)
+        let equity = getFormattedPriceInFloat(formattedStockData[6], 1)
         let shareCount = Number(formattedStockData[2])
-        let totalReturn = isReturnNegative(averageCost, currentMarketPrice, shareCount) ? -(getFormattedPriceInFloat(formattedStockData[5])) : getFormattedPriceInFloat(formattedStockData[5])
+        let totalReturn = isReturnNegative(averageCost, currentMarketPrice, shareCount) ? -(getFormattedPriceInFloat(formattedStockData[5]), 1) : getFormattedPriceInFloat(formattedStockData[5], 1)
 
         return {
             averageCost,
@@ -128,13 +129,71 @@ const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, s
         }
     })
 
+    // get data from banking page
+    await page.goto('https://robinhood.com/account/banking', {
+        waitUntil: 'networkidle0'
+    })
+
+    const scrappedTransactionsData = await page.$$eval(selectors.bankingPage.transfersNode, (arr) => {
+        return arr.map((div, index) => {
+            // if pending transfers exists the length would be 3 else the length is 2
+            if (arr.length == 2) {
+                if (index == 1) {
+                    return Array.from(div.childNodes).map(node => {
+                        // the first child is a title with a h2 tag so we ignore it and only consider div tags
+                        if (node.nodeName === "DIV") {
+                            return node.innerText
+                        }
+                    })
+                }
+            } else if (arr.length == 3) {
+                if (index == 1) {
+                    // index 1 is pending transfers
+
+                } else if (index == 2) {
+                    // index 2 is approved transfers
+
+                }
+            }
+        })
+    })
+
+    const transactionsStrings = scrappedTransactionsData[1]
+
+    // remove the first element which is null
+    transactionsStrings.shift()
+
+    // Eg String: 'Deposit from CHASE COLLEGE\nJan 8\n+$123.00',
+    const transactions = transactionsStrings.map(value => {
+        const amountString = value.split('\n')[2]
+        return getFormattedPriceInFloat(amountString, 2)
+    })
+
+    let transactionsInfo = {
+        deposits: [],
+        withDrawals: [],
+    }
+
+    transactions.map(value => {
+        if (value >= 0) {
+            transactionsInfo.deposits.push(value)
+        } else if (value < 0) {
+            transactionsInfo.withDrawals.push(value)
+        }
+    })
+
+    transactionsInfo['depositsSum'] = getSumOfArray(transactionsInfo.deposits)
+    transactionsInfo['withDrawalsSum'] = getSumOfArray(transactionsInfo.withDrawals)
+
     const timeStampInMilliSecs = getCurrentTimeInMilliSecs()
 
     let data = {
         humanReadableTimeStampInLocalZone: new Date().toLocaleString(),
         totalPortfolioValue,
+        transactionsInfo,
         stocks,
-        timeStampInMilliSecs
+        stockCount: stocks.length,
+        timeStampInMilliSecs,
     }
 
     let json = JSON.stringify({ data }, null, 4)
