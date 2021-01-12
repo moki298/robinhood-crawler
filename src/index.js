@@ -116,7 +116,7 @@ const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, g
         let currentMarketPrice = getFormattedPriceInFloat(formattedStockData[3], 1)
         let equity = getFormattedPriceInFloat(formattedStockData[6], 1)
         let shareCount = Number(formattedStockData[2])
-        let totalReturn = isReturnNegative(averageCost, currentMarketPrice, shareCount) ? -(getFormattedPriceInFloat(formattedStockData[5]), 1) : getFormattedPriceInFloat(formattedStockData[5], 1)
+        let totalReturn = isReturnNegative(averageCost, currentMarketPrice, shareCount) ? (-1 * (getFormattedPriceInFloat(formattedStockData[5]), 1)) : getFormattedPriceInFloat(formattedStockData[5], 1)
 
         return {
             averageCost,
@@ -183,7 +183,7 @@ const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, g
     })
 
     transactionsInfo['depositsSum'] = getSumOfArray(transactionsInfo.deposits)
-    transactionsInfo['withDrawalsSum'] = getSumOfArray(transactionsInfo.withDrawals)
+    transactionsInfo['withDrawalsSum'] = -1 * getSumOfArray(transactionsInfo.withDrawals)
 
     const timeStampInMilliSecs = getCurrentTimeInMilliSecs()
 
