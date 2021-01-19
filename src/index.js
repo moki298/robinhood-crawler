@@ -10,6 +10,10 @@ const userInfo = require('../config/credentials.json');
 const utils = require('./utils');
 const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, getSumOfArray, stripWhiteSpace, lowerCaseFirstLetter, writeToExcelSheet, createDataFolderIfRequired } = utils;
 
+require('dotenv').config();
+const userName = process.env.RH_USERNAME;
+const password = process.env.RH_PASSWORD;
+
 (async () => {
     // get cookies
     // const cookiesString = await fs.readFileSync(`${__dirname}/../rh-cookies.json`, 'utf8');
@@ -45,8 +49,8 @@ const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, g
     ])
 
     // fill in form
-    await page.type(selectors.loginPage.usernameField, userInfo.username, { delay: 100 })
-    await page.type(selectors.loginPage.passwordField, userInfo.password, { delay: 100 })
+    await page.type(selectors.loginPage.usernameField, (userName || userInfo.username), { delay: 100 })
+    await page.type(selectors.loginPage.passwordField, (password || userInfo.password), { delay: 100 })
 
     // click Sign In
     await page.click(selectors.loginPage.signInButton)

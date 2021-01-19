@@ -8,6 +8,7 @@ node_modules
 .env.test.local
 .env.production.local
 
+credentials.json
+.env
 stocks.json
 stocks.csv
-credentials.json
