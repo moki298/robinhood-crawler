@@ -12,5 +12,8 @@
     },
     "bankingPage": {
         "transfersNode": "section"
+    },
+    "profilePage": {
+        "dataNode": ".col-12"
     }
 }

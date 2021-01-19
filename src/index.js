@@ -78,7 +78,7 @@ const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, g
     await page.waitForNavigation()
     // await wait(5000)
 
-    // go to the account page, to get list of all stocks in the portfolio
+    // get stocks data from account 
     await page.goto('https://robinhood.com/account', {
         waitUntil: 'networkidle0'
     })
@@ -184,11 +184,44 @@ const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, g
 
     transactionsInfo['depositsSum'] = getSumOfArray(transactionsInfo.deposits)
     transactionsInfo['withDrawalsSum'] = -1 * getSumOfArray(transactionsInfo.withDrawals)
+    // end banking page scrapping
+
+    // get data from profile page https://robinhood.com/profile
+    await page.goto('https://robinhood.com/profile', {
+        waitUntil: 'networkidle0'
+    })
+
+    const { portfolioDistribution, sectorDistribution } = await page.$$eval(selectors.profilePage.dataNode, parentNode => {
+        const dataNode = parentNode[0].childNodes[1].childNodes
+
+        let portfolioDistribution = {}
+        let sectorDistribution = {}
+
+
+        Array.from(dataNode[0].childNodes).forEach(div => {
+            let [name, value] = div.innerText.split('\n')
+            portfolioDistribution[name] = value
+        })
+
+        const sectorDistributionNodeOne = dataNode[2].childNodes[0].childNodes
+        const sectorDistributionNodeTwo = dataNode[2].childNodes[1].childNodes
+        const sectorDistributionNodeStrings = Array.from(sectorDistributionNodeOne).concat(Array.from(sectorDistributionNodeTwo))
+
+        Array.from(sectorDistributionNodeStrings).forEach(str => {
+            let [name, value] = str.innerText.split('\n')
+            sectorDistribution[name] = value
+        })
+
+        return { portfolioDistribution, sectorDistribution }
+    })
+    // end scrapping profile page
 
     const timeStampInMilliSecs = getCurrentTimeInMilliSecs()
 
     let data = {
         humanReadableTimeStampInLocalZone: new Date().toLocaleString(),
+        portfolioDistribution,
+        sectorDistribution,
         totalPortfolioValue,
         transactionsInfo,
         stocks,
