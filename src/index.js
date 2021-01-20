@@ -227,11 +227,39 @@ const password = process.env.RH_PASSWORD;
 
     await autoScrollToBottom(page);
 
+    const dividendData = await page.$$eval('section', sectionNodes => {
+        let dividendData = sectionNodes.map(eachSection => {
+            const sectionName = eachSection.childNodes[0].innerText
+
+            let sectionData = Array.from(eachSection.childNodes).map((childNode, index) => {
+                if (index !== 0) {
+                    let dataString = childNode.innerText;
+
+                    const [companyInfo, dividendDate, dividendAmount] = dataString.split('\n');
+                    const companyName = companyInfo.replace(/Dividend\sfrom\s/, '');
+
+                    return {
+                        companyName,
+                        dividendDate: dividendDate,
+                        dividendAmount: dividendAmount
+                    }
+                }
+            })
+
+            return {
+                sectionName,
+                sectionData
+            }
+        })
+
+        return dividendData
+    })
     // end dividend data scrapping
 
     const timeStampInMilliSecs = getCurrentTimeInMilliSecs()
 
     let data = {
+        dividendData,
         humanReadableTimeStampInLocalZone: new Date().toLocaleString(),
         portfolioDistribution,
         sectorDistribution,
