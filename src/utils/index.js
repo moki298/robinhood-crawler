@@ -62,6 +62,25 @@ exports.lowerCaseFirstLetter = function (string) {
     return string.charAt(0).toLowerCase() + string.slice(1)
 }
 
+exports.autoScrollToBottom = async function (page) {
+    await page.evaluate(async () => {
+        await new Promise(resolve => {
+            var totalHeight = 0;
+            var distance = 100;
+            var timer = setInterval(() => {
+                var scrollHeight = document.body.scrollHeight;
+                window.scrollBy(0, distance);
+                totalHeight += distance;
+
+                if (totalHeight >= scrollHeight) {
+                    clearInterval(timer);
+                    resolve();
+                }
+            }, 1000);
+        });
+    });
+}
+
 exports.stripWhiteSpace = function (string) {
     return string.replace(/\s+/g, '')
 }

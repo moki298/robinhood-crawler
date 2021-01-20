@@ -8,7 +8,7 @@ const writeFile = util.promisify(fs.writeFile);
 const selectors = require('../config/selectors.json');
 const userInfo = require('../config/credentials.json');
 const utils = require('./utils');
-const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, getSumOfArray, stripWhiteSpace, lowerCaseFirstLetter, writeToExcelSheet, createDataFolderIfRequired } = utils;
+const { autoScrollToBottom, getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, getSumOfArray, stripWhiteSpace, lowerCaseFirstLetter, writeToExcelSheet, createDataFolderIfRequired } = utils;
 
 require('dotenv').config();
 const userName = process.env.RH_USERNAME;
@@ -220,6 +220,15 @@ const password = process.env.RH_PASSWORD;
     })
     // end scrapping profile page
 
+    // get dividend data from history page
+    await page.goto('https://robinhood.com/account/history?type=dividends', {
+        waitUntil: 'networkidle0'
+    })
+
+    await autoScrollToBottom(page);
+
+    // end dividend data scrapping
+
     const timeStampInMilliSecs = getCurrentTimeInMilliSecs()
 
     let data = {
@@ -233,7 +242,7 @@ const password = process.env.RH_PASSWORD;
         timeStampInMilliSecs,
     }
 
-    let json = JSON.stringify({ data }, null, 4)
+    let json = JSON.stringify({ data }, null, 4);
 
     // create data folder if it doesn't exist
 
@@ -247,7 +256,7 @@ const password = process.env.RH_PASSWORD;
 
     await writeFile(`${path.join(__dirname, '/../data/stocks.json')}`, json, 'utf8')
 
-    await browser.close();
+    // await browser.close();
 })().then().catch((err) => {
     console.log(err)
 });
