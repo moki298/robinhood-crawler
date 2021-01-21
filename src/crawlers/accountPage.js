@@ -1,5 +1,7 @@
-exports.crawlAccountPage = function(page) {
-    return new Promise((resolve, reject) => {
-        
-    })
+class AccountPage {
+    constructor() {
+
+    }
 }
+
+module.exports = AccountPage

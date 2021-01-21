@@ -7,8 +7,11 @@ const writeFile = util.promisify(fs.writeFile);
 
 const selectors = require('../config/selectors.json');
 const userInfo = require('../config/credentials.json');
+const crawlers = require('./crawlers')
+const { AccountPage, DividendPage, ProfilePage } = crawlers
+
 const utils = require('./utils');
-const { autoScrollToBottom, getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, getSumOfArray, stripWhiteSpace, lowerCaseFirstLetter, writeToExcelSheet, createDataFolderIfRequired } = utils;
+const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, getSumOfArray, stripWhiteSpace, lowerCaseFirstLetter, writeToExcelSheet, createDataFolderIfRequired } = utils;
 
 require('dotenv').config();
 const userName = process.env.RH_USERNAME;
@@ -191,75 +194,19 @@ const password = process.env.RH_PASSWORD;
     // end banking page scrapping
 
     // get data from profile page https://robinhood.com/profile
-    await page.goto('https://robinhood.com/profile', {
-        waitUntil: 'networkidle0'
-    })
-
-    const { portfolioDistribution, sectorDistribution } = await page.$$eval(selectors.profilePage.dataNode, parentNode => {
-        const dataNode = parentNode[0].childNodes[1].childNodes
-
-        let portfolioDistribution = {}
-        let sectorDistribution = {}
-
-
-        Array.from(dataNode[0].childNodes).forEach(div => {
-            let [name, value] = div.innerText.split('\n')
-            portfolioDistribution[name] = value
-        })
-
-        const sectorDistributionNodeOne = dataNode[2].childNodes[0].childNodes
-        const sectorDistributionNodeTwo = dataNode[2].childNodes[1].childNodes
-        const sectorDistributionNodeStrings = Array.from(sectorDistributionNodeOne).concat(Array.from(sectorDistributionNodeTwo))
-
-        Array.from(sectorDistributionNodeStrings).forEach(str => {
-            let [name, value] = str.innerText.split('\n')
-            sectorDistribution[name] = value
-        })
-
-        return { portfolioDistribution, sectorDistribution }
-    })
+    const profilePage = new ProfilePage()
+    const { portfolioDistribution, sectorDistribution } = await profilePage.crawl(page)
     // end scrapping profile page
 
-    // get dividend data from history page
-    await page.goto('https://robinhood.com/account/history?type=dividends', {
-        waitUntil: 'networkidle0'
-    })
-
-    await autoScrollToBottom(page);
-
-    const dividendData = await page.$$eval('section', sectionNodes => {
-        let dividendData = sectionNodes.map(eachSection => {
-            const sectionName = eachSection.childNodes[0].innerText
-
-            let sectionData = Array.from(eachSection.childNodes).map((childNode, index) => {
-                if (index !== 0) {
-                    let dataString = childNode.innerText;
-
-                    const [companyInfo, dividendDate, dividendAmount] = dataString.split('\n');
-                    const companyName = companyInfo.replace(/Dividend\sfrom\s/, '');
-
-                    return {
-                        companyName,
-                        dividendDate: dividendDate,
-                        dividendAmount: dividendAmount
-                    }
-                }
-            })
-
-            return {
-                sectionName,
-                sectionData
-            }
-        })
-
-        return dividendData
-    })
-    // end dividend data scrapping
+    // scrap dividend page
+    const dividendPage = new DividendPage()
+    const scrappedDividenData = await dividendPage.crawl(page)
+    // end scrap dividend page
 
     const timeStampInMilliSecs = getCurrentTimeInMilliSecs()
 
     let data = {
-        dividendData,
+        // dividendData,
         humanReadableTimeStampInLocalZone: new Date().toLocaleString(),
         portfolioDistribution,
         sectorDistribution,
@@ -284,7 +231,7 @@ const password = process.env.RH_PASSWORD;
 
     await writeFile(`${path.join(__dirname, '/../data/stocks.json')}`, json, 'utf8')
 
-    // await browser.close();
+    await browser.close();
 })().then().catch((err) => {
     console.log(err)
 });
