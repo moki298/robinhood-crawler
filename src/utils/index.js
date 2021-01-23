@@ -1,5 +1,7 @@
 const fs = require('fs');
 const path = require('path');
+const util = require('util');
+const writeFile = util.promisify(fs.writeFile);
 
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
@@ -89,7 +91,12 @@ exports.wait = function (timeInMilliSecs) {
     return new Promise(resolve => setTimeout(resolve, timeInMilliSecs));
 }
 
-exports.writeToExcelSheet = function (data) {
+exports.writeDataToJSONFile = async function (data) {
+    const json = JSON.stringify({ data }, null, 4);
+    await writeFile(`${path.join(__dirname, '/../../data/stocks.json')}`, json, 'utf8');
+}
+
+exports.writeStocksToExcelSheet = function (data) {
     return new Promise((resolve, reject) => {
         const csvWriter = createCsvWriter({
             path: `${path.join(__dirname, '/../../data/stocks.csv')}`,
