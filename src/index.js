@@ -1,20 +1,16 @@
-const fs = require('fs');
 const puppeteer = require('puppeteer');
 
 const crawlers = require('./crawlers')
-const { AccountPage, BankingPage, DividendPage, LoginPage, ProfilePage } = crawlers
-
 const utils = require('./utils');
-const { createDataFolderIfRequired, getCurrentTimeInMilliSecs, getFormattedPriceInFloat, getSumOfArray, isReturnNegative, lowerCaseFirstLetter, stripWhiteSpace, writeStocksToExcelSheet, writeDataToJSONFile } = utils;
+
+const { AccountPage, BankingPage, DividendPage, LoginPage, ProfilePage } = crawlers
+const { createDataFolderIfRequired, getCookiesAndSave, getCurrentTimeInMilliSecs, getFormattedPriceInFloat, getSavedCookiesFromJSON, getSumOfArray, isReturnNegative, lowerCaseFirstLetter, stripWhiteSpace, writeStocksToExcelSheet, writeDataToJSONFile } = utils;
 
 require('dotenv').config();
 
 (async () => {
-    // get cookies
-    // const cookiesString = await fs.readFileSync(`${__dirname}/../rh-cookies.json`, 'utf8');
-    // const cookies = JSON.parse(cookiesString);
+    // const cookies = await getSavedCookiesFromJSON()
 
-    // launch browser
     const browser = await puppeteer.launch({
         headless: false,
         executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
@@ -22,61 +18,22 @@ require('dotenv').config();
 
     const page = await browser.newPage();
 
-    // set viewport
     await page.setViewport({
         width: 1340,
         height: 980,
         deviceScaleFactor: 1,
     });
 
-    // // set cookies
     // await page.setCookie.apply(page, cookies);
 
     const loginPage = new LoginPage()
     await loginPage.crawl(page);
 
-    // get cookies and save them in a JSON file
-    // const cookies = await page.cookies()
-    // console.info("cookies are ", cookies);
-
-    // fs.writeFile('rh-cookies.json', JSON.stringify(cookies, null, 2), function(err) {
-    //     if (err) throw err;
-    //     console.log('completed write of cookies');
-    // });
-
-    // also set `logged_in` cookie after logging in to the JSON file
+    // run this to save cookies to rh-cookies JSON file
+    // await getCookiesAndSave(page);
 
     const accountPage = new AccountPage()
-    const scrappedStockData = await accountPage.crawl(page)
-
-    const totalPortfolioValue = {}
-
-    scrappedStockData[0].map(valueString => {
-        let formattedValueData = valueString.split('\n')
-        let valueTypeName = stripWhiteSpace(formattedValueData[0])
-        valueTypeName = lowerCaseFirstLetter(valueTypeName)
-
-        totalPortfolioValue[valueTypeName] = getFormattedPriceInFloat(formattedValueData[2], 1)
-    })
-
-    const stocks = scrappedStockData[1].map(stockString => {
-        let formattedStockData = stockString.split('\n')
-        let averageCost = getFormattedPriceInFloat(formattedStockData[4], 1)
-        let currentMarketPrice = getFormattedPriceInFloat(formattedStockData[3], 1)
-        let equity = getFormattedPriceInFloat(formattedStockData[6], 1)
-        let shareCount = Number(formattedStockData[2])
-        let totalReturn = isReturnNegative(averageCost, currentMarketPrice, shareCount) ? (-1 * (getFormattedPriceInFloat(formattedStockData[5]), 1)) : getFormattedPriceInFloat(formattedStockData[5], 1)
-
-        return {
-            averageCost,
-            currentMarketPrice,
-            equity,
-            name: formattedStockData[0],
-            shareCount,
-            tickrSymbol: formattedStockData[1],
-            totalReturn
-        }
-    })
+    const { stocks, totalPortfolioValue } = await accountPage.crawl(page)
 
     // get data from banking page
     const bankingPage = new BankingPage()
