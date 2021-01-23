@@ -67,15 +67,11 @@ require('dotenv').config();
     transactionsInfo['withDrawalsSum'] = -1 * getSumOfArray(transactionsInfo.withDrawals)
     // end banking page scrapping
 
-    // get data from profile page https://robinhood.com/profile
     const profilePage = new ProfilePage()
     const { portfolioDistribution, sectorDistribution } = await profilePage.crawl(page)
-    // end scrapping profile page
 
-    // scrap dividend page
     const dividendPage = new DividendPage()
     const scrappedDividenData = await dividendPage.crawl(page)
-    // end scrap dividend page
 
     const timeStampInMilliSecs = getCurrentTimeInMilliSecs()
 

@@ -1,10 +1,5 @@
 const selectors = require('../../config/selectors.json')
-
 class ProfilePage {
-    constructor() {
-
-    }
-
     crawl = function (page) {
         return new Promise(async (resolve, reject) => {
             await page.goto('https://robinhood.com/profile', {
@@ -16,7 +11,6 @@ class ProfilePage {
 
                 let portfolioDistribution = {}
                 let sectorDistribution = {}
-
 
                 Array.from(dataNode[0].childNodes).forEach(div => {
                     let [name, value] = div.innerText.split('\n')
