@@ -4,7 +4,7 @@ const crawlers = require('./crawlers')
 const utils = require('./utils');
 
 const { AccountPage, BankingPage, DividendPage, LoginPage, ProfilePage } = crawlers
-const { createDataFolderIfRequired, getCookiesAndSave, getCurrentTimeInMilliSecs, getFormattedPriceInFloat, getSavedCookiesFromJSON, getSumOfArray, isReturnNegative, lowerCaseFirstLetter, stripWhiteSpace, writeStocksToExcelSheet, writeDataToJSONFile } = utils;
+const { createDataFolderIfRequired, getCookiesAndSave, getCurrentTimeInMilliSecs, getSavedCookiesFromJSON, writeStocksToExcelSheet, writeDataToJSONFile } = utils;
 
 require('dotenv').config();
 
@@ -35,37 +35,8 @@ require('dotenv').config();
     const accountPage = new AccountPage()
     const { stocks, totalPortfolioValue } = await accountPage.crawl(page)
 
-    // get data from banking page
     const bankingPage = new BankingPage()
-    const scrappedTransactionsData = await bankingPage.crawl(page)
-
-    const transactionsStrings = scrappedTransactionsData[1]
-
-    // remove the first element which is null
-    transactionsStrings.shift()
-
-    // Eg String: 'Deposit from CHASE COLLEGE\nJan 8\n+$123.00',
-    const transactions = transactionsStrings.map(value => {
-        const amountString = value.split('\n')[2]
-        return getFormattedPriceInFloat(amountString, 2)
-    })
-
-    let transactionsInfo = {
-        deposits: [],
-        withDrawals: [],
-    }
-
-    transactions.map(value => {
-        if (value >= 0) {
-            transactionsInfo.deposits.push(value)
-        } else if (value < 0) {
-            transactionsInfo.withDrawals.push(value)
-        }
-    })
-
-    transactionsInfo['depositsSum'] = getSumOfArray(transactionsInfo.deposits)
-    transactionsInfo['withDrawalsSum'] = -1 * getSumOfArray(transactionsInfo.withDrawals)
-    // end banking page scrapping
+    const transactionsInfo = await bankingPage.crawl(page)
 
     const profilePage = new ProfilePage()
     const { portfolioDistribution, sectorDistribution } = await profilePage.crawl(page)
