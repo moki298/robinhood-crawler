@@ -22,6 +22,14 @@ exports.createDataFolderIfRequired = function () {
     })
 }
 
+exports.getCookiesAndSave = async function (page) {
+    const cookies = await page.cookies()
+    console.info("cookies are ", cookies);
+
+    await writeFile(`${path.join(__dirname, '/../../rh-cookies.json')}`, JSON.stringify(cookies, null, 2), 'utf8');
+    // also set `logged_in` cookie after logging-in in the JSON file
+}
+
 exports.getCurrentTimeInMilliSecs = function () {
     return new Date().getTime()
 }
@@ -38,6 +46,11 @@ exports.getFormattedPriceInFloat = function (value, charCountToRemove) {
 
     // remove $ symbol in first char and any commas
     return parseFloat(value.substring(charCountToRemove).replace(',', ''));
+}
+
+exports.getSavedCookiesFromJSON = async function () {
+    const cookiesString = await fs.readFileSync(`${__dirname}/../../rh-cookies.json`, 'utf8');
+    return JSON.parse(cookiesString)
 }
 
 exports.getSumOfArray = function (list) {
