@@ -1,21 +1,13 @@
 const fs = require('fs');
-const path = require('path');
-const util = require('util');
-
 const puppeteer = require('puppeteer');
-const writeFile = util.promisify(fs.writeFile);
 
-const selectors = require('../config/selectors.json');
-const userInfo = require('../config/credentials.json');
 const crawlers = require('./crawlers')
-const { AccountPage, DividendPage, ProfilePage } = crawlers
+const { AccountPage, BankingPage, DividendPage, LoginPage, ProfilePage } = crawlers
 
 const utils = require('./utils');
-const { getFormattedPriceInFloat, isReturnNegative, getCurrentTimeInMilliSecs, getSumOfArray, stripWhiteSpace, lowerCaseFirstLetter, writeToExcelSheet, createDataFolderIfRequired } = utils;
+const { createDataFolderIfRequired, getCurrentTimeInMilliSecs, getFormattedPriceInFloat, getSumOfArray, isReturnNegative, lowerCaseFirstLetter, stripWhiteSpace, writeStocksToExcelSheet, writeDataToJSONFile } = utils;
 
 require('dotenv').config();
-const userName = process.env.RH_USERNAME;
-const password = process.env.RH_PASSWORD;
 
 (async () => {
     // get cookies
@@ -37,31 +29,13 @@ const password = process.env.RH_PASSWORD;
         deviceScaleFactor: 1,
     });
 
-    // set cookies
+    // // set cookies
     // await page.setCookie.apply(page, cookies);
 
-    // open login page
-    await page.goto('https://robinhood.com/login', {
-        waitUntil: 'load'
-    })
-
-    // await wait(3000)
-    await Promise.all([
-        await page.waitForSelector(selectors.loginPage.usernameField),
-        await page.waitForSelector(selectors.loginPage.passwordField)
-    ])
-
-    // fill in form
-    await page.type(selectors.loginPage.usernameField, (userName || userInfo.username), { delay: 100 })
-    await page.type(selectors.loginPage.passwordField, (password || userInfo.password), { delay: 100 })
-
-    // click Sign In
-    await page.click(selectors.loginPage.signInButton)
-
-    await page.waitForSelector(selectors.loginPage.mfaField)
+    const loginPage = new LoginPage()
+    await loginPage.crawl(page);
 
     // get cookies and save them in a JSON file
-
     // const cookies = await page.cookies()
     // console.info("cookies are ", cookies);
 
@@ -72,40 +46,8 @@ const password = process.env.RH_PASSWORD;
 
     // also set `logged_in` cookie after logging in to the JSON file
 
-    await page.waitForFunction((mfaField) => {
-        let keyLength = document.querySelector(mfaField).value.length
-        if (keyLength === 6) {
-            return true
-        }
-    }, 1000, selectors.loginPage.mfaField)
-    // await wait(15000)
-
-    await page.click(selectors.loginPage.continueButton)
-
-    await page.waitForNavigation()
-    // await wait(5000)
-
-    // get stocks data from account 
-    await page.goto('https://robinhood.com/account', {
-        waitUntil: 'networkidle0'
-    })
-    // await wait(5000)
-
-    const scrappedStockData = await page.$$eval(selectors.accountPage.stocksTable, (arr) => {
-        return arr.map((div, index) => {
-            if (index === 1) {
-                let childNodes = div.firstChild.childNodes[1].childNodes
-
-                return Array.from(childNodes).map(node => {
-                    return node.innerText
-                })
-            } else if (index == 0) {
-                return Array.from(div.childNodes).map(node => {
-                    return node.innerText
-                })
-            }
-        })
-    })
+    const accountPage = new AccountPage()
+    const scrappedStockData = await accountPage.crawl(page)
 
     const totalPortfolioValue = {}
 
@@ -137,33 +79,8 @@ const password = process.env.RH_PASSWORD;
     })
 
     // get data from banking page
-    await page.goto('https://robinhood.com/account/banking', {
-        waitUntil: 'networkidle0'
-    })
-
-    const scrappedTransactionsData = await page.$$eval(selectors.bankingPage.transfersNode, (arr) => {
-        return arr.map((div, index) => {
-            // if pending transfers exists the length would be 3 else the length is 2
-            if (arr.length == 2) {
-                if (index == 1) {
-                    return Array.from(div.childNodes).map(node => {
-                        // the first child is a title with a h2 tag so we ignore it and only consider div tags
-                        if (node.nodeName === "DIV") {
-                            return node.innerText
-                        }
-                    })
-                }
-            } else if (arr.length == 3) {
-                if (index == 1) {
-                    // index 1 is pending transfers
-
-                } else if (index == 2) {
-                    // index 2 is approved transfers
-
-                }
-            }
-        })
-    })
+    const bankingPage = new BankingPage()
+    const scrappedTransactionsData = await bankingPage.crawl(page)
 
     const transactionsStrings = scrappedTransactionsData[1]
 
@@ -217,19 +134,16 @@ const password = process.env.RH_PASSWORD;
         timeStampInMilliSecs,
     }
 
-    let json = JSON.stringify({ data }, null, 4);
-
     // create data folder if it doesn't exist
-
     await createDataFolderIfRequired().catch((err) => {
         console.log(err)
     })
 
-    await writeToExcelSheet(stocks).catch((err) => {
+    await writeStocksToExcelSheet(stocks).catch((err) => {
         console.log(err)
     })
 
-    await writeFile(`${path.join(__dirname, '/../data/stocks.json')}`, json, 'utf8')
+    writeDataToJSONFile(data)
 
     await browser.close();
 })().then().catch((err) => {
