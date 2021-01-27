@@ -36,9 +36,7 @@ class DividendPage {
     }
 
     cleanScrappedData = scrappedDividendData => {
-        const dividendData = {
-
-        }
+        let dividendData = {}
 
         // dividend state can be pending, recent or older
         scrappedDividendData.forEach(eachState => {
@@ -52,7 +50,7 @@ class DividendPage {
 
                 return {
                     companyName,
-                    dividendDate: dividendDate,
+                    dividendDate: new Date(dividendDate),
                     dividendAmount: getFormattedPriceInFloat(dividendAmount, 2),
                     reInvested
                 }
@@ -61,7 +59,24 @@ class DividendPage {
             dividendData[stateName] = stateData
         })
 
+        const totalDividenReceived = this.calculateTotalDividend(dividendData)
+        console.log(totalDividenReceived)
+        dividendData["totalDividenReceived"] = totalDividenReceived
+
         return dividendData
+    }
+
+    calculateTotalDividend = dividendData => {
+        let totalDividenReceived = 0
+        const values = [...Object.values(dividendData)]
+
+        values.forEach(eachState => {
+            eachState.forEach(dividendInfo => {
+                totalDividenReceived = totalDividenReceived + dividendInfo.dividendAmount
+            })
+        })
+
+        return totalDividenReceived.toFixed(2)
     }
 }
 
