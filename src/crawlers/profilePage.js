@@ -1,4 +1,5 @@
 const selectors = require('../../config/selectors.json')
+
 class ProfilePage {
     crawl = function (page) {
         return new Promise(async (resolve, reject) => {

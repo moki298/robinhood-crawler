@@ -2,6 +2,7 @@ const selectors = require('../../config/selectors.json');
 const utils = require('../utils');
 
 const { getFormattedPriceInFloat, getSumOfArray } = utils;
+
 class BankingPage {
     crawl = async page => {
         await page.goto('https://robinhood.com/account/banking', {

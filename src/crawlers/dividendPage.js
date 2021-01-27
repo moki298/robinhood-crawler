@@ -1,45 +1,67 @@
 const utils = require('../utils');
-const { autoScrollToBottom } = utils
+const { autoScrollToBottom, getFormattedPriceInFloat } = utils
 
 class DividendPage {
-    crawl = function (page) {
-        return new Promise(async (resolve, reject) => {
-            await page.goto('https://robinhood.com/account/history?type=dividends', {
-                waitUntil: 'networkidle0'
-            })
-    
-            await autoScrollToBottom(page);
-    
-            resolve()
-    
-            // const dividendData = await page.$$eval('section', sectionNodes => {
-            //     let dividendData = sectionNodes.map(eachSection => {
-            //         const sectionName = eachSection.childNodes[0].innerText
-    
-            //         let sectionData = Array.from(eachSection.childNodes).map((childNode, index) => {
-            //             if (index !== 0) {
-            //                 let dataString = childNode.innerText;
-    
-            //                 const [companyInfo, dividendDate, dividendAmount] = dataString.split('\n');
-            //                 const companyName = companyInfo.replace(/Dividend\sfrom\s/, '');
-    
-            //                 return {
-            //                     companyName,
-            //                     dividendDate: dividendDate,
-            //                     dividendAmount: dividendAmount
-            //                 }
-            //             }
-            //         })
-    
-            //         return {
-            //             sectionName,
-            //             sectionData
-            //         }
-            //     })
-    
-            //     return dividendData
-            // })
+    crawl = async function (page) {
+        await page.goto('https://robinhood.com/account/history?type=dividends', {
+            waitUntil: 'networkidle0'
         })
+
+        await autoScrollToBottom(page);
+
+        const scrappedDividendData = await page.$$eval('section', sectionNodes => {
+            const data = sectionNodes.map(eachSection => {
+                const name = eachSection.childNodes[0].innerText
+                const nodeStrings = []
+
+                // remove first node as it is name
+                const dataNodes = Array.from(eachSection.childNodes).slice(1)
+
+                dataNodes.forEach(childNode => {
+                    nodeStrings.push(childNode.innerText)
+                })
+
+                return {
+                    name,
+                    nodeStrings
+                }
+            })
+
+            return data
+        })
+
+        const dividendData = this.cleanScrappedData(scrappedDividendData)
+
+        return dividendData
+    }
+
+    cleanScrappedData = scrappedDividendData => {
+        const dividendData = {
+
+        }
+
+        // dividend state can be pending, recent or older
+        scrappedDividendData.forEach(eachState => {
+            const stateName = eachState.name
+            const dataStrings = eachState.nodeStrings
+
+            const stateData = dataStrings.map(string => {
+                const [companyInfo, dividendDate, dividendAmount, reInvestedInfo] = string.split('\n')
+                const companyName = companyInfo.replace(/Dividend\sfrom\s/, '');
+                const reInvested = reInvestedInfo === "Reinvested" ? true : false
+
+                return {
+                    companyName,
+                    dividendDate: dividendDate,
+                    dividendAmount: getFormattedPriceInFloat(dividendAmount, 2),
+                    reInvested
+                }
+            })
+
+            dividendData[stateName] = stateData
+        })
+
+        return dividendData
     }
 }
 

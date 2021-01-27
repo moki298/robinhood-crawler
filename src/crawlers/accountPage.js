@@ -2,6 +2,7 @@ const selectors = require('../../config/selectors.json')
 const utils = require('../utils');
 
 const { getFormattedPriceInFloat, isReturnNegative, lowerCaseFirstLetter, stripWhiteSpace } = utils;
+
 class AccountPage {
     crawl = async (page) => {
         // get stocks data from account 

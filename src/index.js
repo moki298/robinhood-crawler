@@ -42,12 +42,12 @@ require('dotenv').config();
     const { portfolioDistribution, sectorDistribution } = await profilePage.crawl(page)
 
     const dividendPage = new DividendPage()
-    const scrappedDividenData = await dividendPage.crawl(page)
+    const dividendData = await dividendPage.crawl(page)
 
     const timeStampInMilliSecs = getCurrentTimeInMilliSecs()
 
     let data = {
-        // dividendData,
+        dividendData,
         humanReadableTimeStampInLocalZone: new Date().toLocaleString(),
         portfolioDistribution,
         sectorDistribution,
