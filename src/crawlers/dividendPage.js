@@ -60,7 +60,6 @@ class DividendPage {
         })
 
         const totalDividenReceived = this.calculateTotalDividend(dividendData)
-        console.log(totalDividenReceived)
         dividendData["totalDividenReceived"] = totalDividenReceived
 
         return dividendData
