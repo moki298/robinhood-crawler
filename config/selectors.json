@@ -15,5 +15,9 @@
     },
     "profilePage": {
         "dataNode": ".col-12"
+    },
+    "historyPage": {
+        "dividendsNode": "section",
+        "transfersNode": "section"
     }
 }
