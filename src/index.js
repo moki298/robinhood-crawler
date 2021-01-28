@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 const crawlers = require('./crawlers')
 const utils = require('./utils');
 
-const { AccountPage, BankingPage, DividendPage, LoginPage, ProfilePage } = crawlers
+const { AccountPage, BankingPage, DividendPage, LoginPage, ProfilePage, TransferPage } = crawlers
 const { createDataFolderIfRequired, getCookiesAndSave, getCurrentTimeInMilliSecs, getSavedCookiesFromJSON, writeStocksToExcelSheet, writeDataToJSONFile } = utils;
 
 require('dotenv').config();
@@ -35,8 +35,11 @@ require('dotenv').config();
     const accountPage = new AccountPage()
     const { stocks, totalPortfolioValue } = await accountPage.crawl(page)
 
-    const bankingPage = new BankingPage()
-    const transactionsInfo = await bankingPage.crawl(page)
+    // const bankingPage = new BankingPage()
+    // const transactionsInfo = await bankingPage.crawl(page)
+
+    const transferPage = new TransferPage()
+    const transactionsInfo = await transferPage.crawl(page)
 
     const profilePage = new ProfilePage()
     const { portfolioDistribution, sectorDistribution } = await profilePage.crawl(page)

@@ -3,5 +3,6 @@ module.exports = {
     BankingPage: require('./bankingPage'),
     DividendPage: require('./dividendPage'),
     LoginPage: require('./loginPage'),
-    ProfilePage: require('./ProfilePage')
+    ProfilePage: require('./ProfilePage'),
+    TransferPage: require('./transferPage'),
 }
