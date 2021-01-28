@@ -2,10 +2,10 @@
 
 ## Overview
 
-Use this tool to scrap portfolio data from your [Robinhood](http://www.robinhood.com/) account
+Use this tool to scrape portfolio data from your [Robinhood](http://www.robinhood.com/) account
 
 
-Currently the tool scraps the following data from the app and stores it in a JSON file:
+Currently the tool scrapes the following data from the app and stores it in a JSON file:
 
 - Stocks data from https://robinhood.com/account
 - Dividends history from https://robinhood.com/account/history?type=dividends
@@ -25,4 +25,4 @@ Currently the tool scraps the following data from the app and stores it in a JSO
 
 ## Note
 
-- The tool supports accounts with Two-Factor Authentication(2FA) turned on, just enter the One Time Password(OTP) in the webpage when requested and the app should successfully log you in and start scrapping data
+- The tool supports accounts with Two-Factor Authentication(2FA) turned on, just enter the One Time Password(OTP) in the webpage when requested and the app should successfully log you in and start scraping data
