@@ -9,7 +9,7 @@ class DividendPage {
 
         await autoScrollToBottom(page);
 
-        const scrappedDividendData = await page.$$eval('section', sectionNodes => {
+        const scrapedDividendData = await page.$$eval('section', sectionNodes => {
             const data = sectionNodes.map(eachSection => {
                 const name = eachSection.childNodes[0].innerText
                 const nodeStrings = []
@@ -30,16 +30,16 @@ class DividendPage {
             return data
         })
 
-        const dividendData = this.cleanScrappedData(scrappedDividendData)
+        const dividendData = this.cleanScrapedData(scrapedDividendData)
 
         return dividendData
     }
 
-    cleanScrappedData = scrappedDividendData => {
+    cleanScrapedData = scrapedDividendData => {
         let dividendData = {}
 
         // dividend state can be pending, recent or older
-        scrappedDividendData.forEach(eachState => {
+        scrapedDividendData.forEach(eachState => {
             const stateName = eachState.name
             const dataStrings = eachState.nodeStrings
 

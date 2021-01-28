@@ -9,7 +9,7 @@ class BankingPage {
             waitUntil: 'networkidle0'
         })
 
-        const scrappedTransactionsData = await page.$$eval(selectors.bankingPage.transfersNode, (arr) => {
+        const scrapedTransactionsData = await page.$$eval(selectors.bankingPage.transfersNode, (arr) => {
             return arr.map((div, index) => {
                 // if pending transfers exists the length would be 3 else the length is 2
                 if (arr.length == 2) {
@@ -33,13 +33,13 @@ class BankingPage {
             })
         })
 
-        const transactionsInfo = this.cleanScrappedData(scrappedTransactionsData)
+        const transactionsInfo = this.cleanScrapedData(scrapedTransactionsData)
 
         return transactionsInfo
     }
 
-    cleanScrappedData = (scrappedTransactionsData) => {
-        const transactionsStrings = scrappedTransactionsData[1]
+    cleanScrapedData = (scrapedTransactionsData) => {
+        const transactionsStrings = scrapedTransactionsData[1]
 
         // remove the first element which is null
         transactionsStrings.shift()

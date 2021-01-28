@@ -11,7 +11,7 @@ class AccountPage {
         })
         // await wait(5000)
 
-        const scrappedStockData = await page.$$eval(selectors.accountPage.stocksTable, (arr) => {
+        const scrapedStockData = await page.$$eval(selectors.accountPage.stocksTable, (arr) => {
             return arr.map((div, index) => {
                 if (index === 1) {
                     let childNodes = div.firstChild.childNodes[1].childNodes
@@ -27,15 +27,15 @@ class AccountPage {
             })
         })
 
-        const { stocks, totalPortfolioValue } = this.cleanScrappedData(scrappedStockData);
+        const { stocks, totalPortfolioValue } = this.cleanScrapedData(scrapedStockData);
 
         return { stocks, totalPortfolioValue }
     }
 
-    cleanScrappedData = (scrappedStockData) => {
+    cleanScrapedData = (scrapedStockData) => {
         const totalPortfolioValue = {}
 
-        scrappedStockData[0].map(valueString => {
+        scrapedStockData[0].map(valueString => {
             let formattedValueData = valueString.split('\n')
             let valueTypeName = stripWhiteSpace(formattedValueData[0])
             valueTypeName = lowerCaseFirstLetter(valueTypeName)
@@ -43,7 +43,7 @@ class AccountPage {
             totalPortfolioValue[valueTypeName] = getFormattedPriceInFloat(formattedValueData[2], 1)
         })
 
-        const stocks = scrappedStockData[1].map(stockString => {
+        const stocks = scrapedStockData[1].map(stockString => {
             let formattedStockData = stockString.split('\n')
             let averageCost = getFormattedPriceInFloat(formattedStockData[4], 1)
             let currentMarketPrice = getFormattedPriceInFloat(formattedStockData[3], 1)
