@@ -1,3 +1,7 @@
+# robinhood-crawler
+
+## Overview
+
 Use this tool to scrap portfolio data from your [Robinhood](http://www.robinhood.com/) account.
 
 ## Prerequisites
