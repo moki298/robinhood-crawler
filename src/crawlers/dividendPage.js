@@ -1,3 +1,4 @@
+const selectors = require('../../config/selectors.json');
 const utils = require('../utils');
 const { autoScrollToBottom, getFormattedPriceInFloat, getDividendDate } = utils
 
@@ -9,7 +10,7 @@ class DividendPage {
 
         await autoScrollToBottom(page);
 
-        const scrapedDividendData = await page.$$eval('section', sectionNodes => {
+        const scrapedDividendData = await page.$$eval(selectors.historyPage.dividendsNode, sectionNodes => {
             const data = sectionNodes.map(eachSection => {
                 const name = eachSection.childNodes[0].innerText
                 const nodeStrings = []
