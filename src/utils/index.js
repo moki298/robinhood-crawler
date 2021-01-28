@@ -34,6 +34,14 @@ exports.getCurrentTimeInMilliSecs = function () {
     return new Date().getTime()
 }
 
+exports.getDividendDate = function (dateString) {
+    const currentYear = new Date().getFullYear()
+
+    if (dateString.length < 8) {
+        return new Date(`${dateString} ${currentYear}`)
+    } else return new Date(dateString)
+}
+
 exports.getFormattedPriceInFloat = function (value, charCountToRemove) {
     // string format for below case: '+$123.00'
     if (charCountToRemove === 2) {

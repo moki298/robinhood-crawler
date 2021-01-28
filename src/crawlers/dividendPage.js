@@ -1,5 +1,5 @@
 const utils = require('../utils');
-const { autoScrollToBottom, getFormattedPriceInFloat } = utils
+const { autoScrollToBottom, getFormattedPriceInFloat, getDividendDate } = utils
 
 class DividendPage {
     crawl = async function (page) {
@@ -44,13 +44,14 @@ class DividendPage {
             const dataStrings = eachState.nodeStrings
 
             const stateData = dataStrings.map(string => {
-                const [companyInfo, dividendDate, dividendAmount, reInvestedInfo] = string.split('\n')
+                const [companyInfo, dividendDateInfo, dividendAmount, reInvestedInfo] = string.split('\n')
                 const companyName = companyInfo.replace(/Dividend\sfrom\s/, '');
                 const reInvested = reInvestedInfo === "Reinvested" ? true : false
+                const dividendDate = getDividendDate(dividendDateInfo)
 
                 return {
                     companyName,
-                    dividendDate: new Date(dividendDate),
+                    dividendDate,
                     dividendAmount: getFormattedPriceInFloat(dividendAmount, 2),
                     reInvested
                 }
@@ -75,7 +76,7 @@ class DividendPage {
             })
         })
 
-        return totalDividenReceived.toFixed(2)
+        return parseFloat(totalDividenReceived.toFixed(2))
     }
 }
 
