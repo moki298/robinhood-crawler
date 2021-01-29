@@ -1,7 +1,7 @@
 const selectors = require('../../config/selectors.json');
 const utils = require('../utils');
 
-const { autoScrollToBottom, getFormattedPriceInFloat, getSumOfArray } = utils;
+const { autoScrollToBottom, getAbsolutePriceInFloat, getSumOfArray, getValidDateWithYear } = utils;
 
 class TransferPage {
     crawl = async page => {
@@ -11,7 +11,7 @@ class TransferPage {
 
         await autoScrollToBottom(page);
 
-        const scrapedTransactionsData = await page.$$eval(selectors.historyPage.transfersNode, sectionNodes => {
+        const scrapedTransferData = await page.$$eval(selectors.historyPage.transfersNode, sectionNodes => {
             const data = sectionNodes.map(eachSection => {
                 const name = eachSection.childNodes[0].innerText
                 const nodeStrings = []
@@ -32,74 +32,35 @@ class TransferPage {
             return data
         })
 
-        console.log(scrapedTransactionsData)
+        const transferData = this.cleanScrapedData(scrapedTransferData)
 
-        // const transferData = this.cleanScrapedData(scrapedDividendData)
-
-        // return transferData
+        return transferData
     }
 
-    cleanScrapedData = scrapedDividendData => {
-        // let dividendData = {}
+    cleanScrapedData = scrapedTransferData => {
+        const transferData = {}
 
-        // // dividend state can be pending, recent or older
-        // scrapedDividendData.forEach(eachState => {
-        //     const stateName = eachState.name
-        //     const dataStrings = eachState.nodeStrings
+        scrapedTransferData.forEach(eachState => {
+            const stateName = eachState.name
+            const dataStrings = eachState.nodeStrings
 
-        //     const stateData = dataStrings.map(string => {
-        //         const [companyInfo, dividendDateInfo, dividendAmount, reInvestedInfo] = string.split('\n')
-        //         const companyName = companyInfo.replace(/Dividend\sfrom\s/, '');
-        //         const reInvested = reInvestedInfo === "Reinvested" ? true : false
-        //         const dividendDate = getDividendDate(dividendDateInfo)
+            const stateData = dataStrings.map(string => {
+                const [transferTypeInfo, transferDateInfo, transferAmount] = string.split('\n')
+                const transferDate = getValidDateWithYear(transferDateInfo)
+                const transferType = transferTypeInfo.includes('Deposit') ? 'deposit' : 'withdrawal'
 
-        //         return {
-        //             companyName,
-        //             dividendDate,
-        //             dividendAmount: getFormattedPriceInFloat(dividendAmount, 2),
-        //             reInvested
-        //         }
-        //     })
+                return {
+                    transferType,
+                    transferDate,
+                    transferAmount: getAbsolutePriceInFloat(transferAmount, 2),
+                }
+            })
 
-        //     dividendData[stateName] = stateData
-        // })
+            transferData[stateName] = stateData
+        })
 
-        // const totalDividenReceived = this.calculateTotalDividend(dividendData)
-        // dividendData["totalDividenReceived"] = totalDividenReceived
-
-        // return dividendData
+        return transferData
     }
-
-    // cleanScrapedData = (scrapedTransactionsData) => {
-    // const transactionsStrings = scrapedTransactionsData[1]
-
-    // // remove the first element which is null
-    // transactionsStrings.shift()
-
-    // // Eg String: 'Deposit from CHASE COLLEGE\nJan 8\n+$123.00',
-    // const transactions = transactionsStrings.map(value => {
-    //     const amountString = value.split('\n')[2]
-    //     return getFormattedPriceInFloat(amountString, 2)
-    // })
-
-    // let transactionsInfo = {
-    //     deposits: [],
-    //     withDrawals: [],
-    // }
-
-    // transactions.map(value => {
-    //     if (value >= 0) {
-    //         transactionsInfo.deposits.push(value)
-    //     } else if (value < 0) {
-    //         transactionsInfo.withDrawals.push(value)
-    //     }
-    // })
-
-    // transactionsInfo['depositsSum'] = getSumOfArray(transactionsInfo.deposits)
-    // transactionsInfo['withDrawalsSum'] = -1 * getSumOfArray(transactionsInfo.withDrawals)
-
-    // return transactionsInfo
-    // }
 }
 
 module.exports = TransferPage

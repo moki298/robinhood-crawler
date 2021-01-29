@@ -1,6 +1,6 @@
 const selectors = require('../../config/selectors.json');
 const utils = require('../utils');
-const { autoScrollToBottom, getFormattedPriceInFloat, getDividendDate } = utils
+const { autoScrollToBottom, getFormattedPriceInFloat, getValidDateWithYear } = utils
 
 class DividendPage {
     crawl = async function (page) {
@@ -48,7 +48,7 @@ class DividendPage {
                 const [companyInfo, dividendDateInfo, dividendAmount, reInvestedInfo] = string.split('\n')
                 const companyName = companyInfo.replace(/Dividend\sfrom\s/, '');
                 const reInvested = reInvestedInfo === "Reinvested" ? true : false
-                const dividendDate = getDividendDate(dividendDateInfo)
+                const dividendDate = getValidDateWithYear(dividendDateInfo)
 
                 return {
                     companyName,

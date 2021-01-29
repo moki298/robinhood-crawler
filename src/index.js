@@ -36,10 +36,10 @@ require('dotenv').config();
     const { stocks, totalPortfolioValue } = await accountPage.crawl(page)
 
     // const bankingPage = new BankingPage()
-    // const transactionsInfo = await bankingPage.crawl(page)
+    // const transferInfo = await bankingPage.crawl(page)
 
     const transferPage = new TransferPage()
-    const transactionsInfo = await transferPage.crawl(page)
+    const transferInfo = await transferPage.crawl(page)
 
     const profilePage = new ProfilePage()
     const { portfolioDistribution, sectorDistribution } = await profilePage.crawl(page)
@@ -55,7 +55,7 @@ require('dotenv').config();
         portfolioDistribution,
         sectorDistribution,
         totalPortfolioValue,
-        transactionsInfo,
+        transferInfo,
         stocks,
         stockCount: stocks.length,
         timeStampInMilliSecs,

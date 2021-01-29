@@ -34,14 +34,6 @@ exports.getCurrentTimeInMilliSecs = function () {
     return new Date().getTime()
 }
 
-exports.getDividendDate = function (dateString) {
-    const currentYear = new Date().getFullYear()
-
-    if (dateString.length < 8) {
-        return new Date(`${dateString} ${currentYear}`)
-    } else return new Date(dateString)
-}
-
 exports.getFormattedPriceInFloat = function (value, charCountToRemove) {
     // string format for below case: '+$123.00'
     if (charCountToRemove === 2) {
@@ -53,6 +45,10 @@ exports.getFormattedPriceInFloat = function (value, charCountToRemove) {
     }
 
     // remove $ symbol in first char and any commas
+    return parseFloat(value.substring(charCountToRemove).replace(',', ''));
+}
+
+exports.getAbsolutePriceInFloat = function (value, charCountToRemove) {
     return parseFloat(value.substring(charCountToRemove).replace(',', ''));
 }
 
@@ -69,6 +65,14 @@ exports.getSumOfArray = function (list) {
     })
 
     return sum
+}
+
+exports.getValidDateWithYear = function (dateString) {
+    const currentYear = new Date().getFullYear()
+
+    if (dateString.length < 8) {
+        return new Date(`${dateString} ${currentYear}`)
+    } else return new Date(dateString)
 }
 
 exports.isReturnNegative = function (averageCost, currentMarketPrice, shareCount) {
