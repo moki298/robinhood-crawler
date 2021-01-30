@@ -56,7 +56,7 @@ class AccountPage {
             let currentMarketPrice = getFormattedPriceInFloat(formattedStockData[3], 1)
             let equity = getFormattedPriceInFloat(formattedStockData[6], 1)
             let shareCount = Number(formattedStockData[2])
-            let totalReturn = isReturnNegative(averageCost, currentMarketPrice, shareCount) ? (-1 * (getFormattedPriceInFloat(formattedStockData[5]), 1)) : getFormattedPriceInFloat(formattedStockData[5], 1)
+            let totalReturn = isReturnNegative(averageCost, currentMarketPrice, shareCount) ? (-1 * (getFormattedPriceInFloat(formattedStockData[5], 1))) : getFormattedPriceInFloat(formattedStockData[5], 1)
 
             return {
                 averageCost,
@@ -80,7 +80,7 @@ class AccountPage {
                 let currentPrice = getFormattedPriceInFloat(formattedCryptoData[3], 1)
                 let equity = getFormattedPriceInFloat(formattedCryptoData[6], 1)
                 let coinCount = Number(formattedCryptoData[2])
-                let totalReturn = isReturnNegative(averageCost, currentPrice, coinCount) ? (-1 * (getFormattedPriceInFloat(formattedCryptoData[5]), 1)) : getFormattedPriceInFloat(formattedCryptoData[5], 1)
+                let totalReturn = isReturnNegative(averageCost, currentPrice, coinCount) ? (-1 * (getFormattedPriceInFloat(formattedCryptoData[5], 1))) : getFormattedPriceInFloat(formattedCryptoData[5], 1)
 
                 return {
                     averageCost,
