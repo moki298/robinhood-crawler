@@ -1,7 +1,7 @@
 const selectors = require('../../config/selectors.json');
 const utils = require('../utils');
 
-const { autoScrollToBottom, getAbsolutePriceInFloat, getSumOfArray, getValidDateWithYear } = utils;
+const { autoScrollToBottom, getAbsolutePriceInFloat, getFormattedPriceInFloat, getValidDateWithYear } = utils;
 
 class TransferPage {
     crawl = async page => {
@@ -39,6 +39,7 @@ class TransferPage {
 
     cleanScrapedData = scrapedTransferData => {
         const transferData = {}
+        let totalAmountInvested = 0
 
         scrapedTransferData.forEach(eachState => {
             const stateName = eachState.name
@@ -49,6 +50,8 @@ class TransferPage {
                 const transferDate = getValidDateWithYear(transferDateInfo)
                 const transferType = transferTypeInfo.includes('Deposit') ? 'deposit' : 'withdrawal'
 
+                totalAmountInvested = totalAmountInvested + getFormattedPriceInFloat(transferAmount, 2)
+
                 return {
                     transferType,
                     transferDate,
@@ -58,6 +61,8 @@ class TransferPage {
 
             transferData[stateName] = stateData
         })
+
+        transferData['totalAmountInvested'] = parseFloat(totalAmountInvested.toFixed(2))
 
         return transferData
     }

@@ -38,14 +38,14 @@ require('dotenv').config();
     // const bankingPage = new BankingPage()
     // const transferInfo = await bankingPage.crawl(page)
 
-    const transferPage = new TransferPage()
-    const transferInfo = await transferPage.crawl(page)
+    const dividendPage = new DividendPage()
+    const dividendData = await dividendPage.crawl(page)
 
     const profilePage = new ProfilePage()
     const { portfolioDistribution, sectorDistribution } = await profilePage.crawl(page)
 
-    const dividendPage = new DividendPage()
-    const dividendData = await dividendPage.crawl(page)
+    const transferPage = new TransferPage()
+    const transferInfo = await transferPage.crawl(page)
 
     const timeStampInMilliSecs = getCurrentTimeInMilliSecs()
 
