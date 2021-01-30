@@ -33,7 +33,7 @@ require('dotenv').config();
     // await getCookiesAndSave(page);
 
     const accountPage = new AccountPage()
-    const { stocks, totalPortfolioValue } = await accountPage.crawl(page)
+    const { crypto, stocks, totalPortfolioValue } = await accountPage.crawl(page)
 
     // const bankingPage = new BankingPage()
     // const transferInfo = await bankingPage.crawl(page)
@@ -50,6 +50,7 @@ require('dotenv').config();
     const timeStampInMilliSecs = getCurrentTimeInMilliSecs()
 
     let data = {
+        crypto,
         dividendData,
         humanReadableTimeStampInLocalZone: new Date().toLocaleString(),
         portfolioDistribution,

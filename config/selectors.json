@@ -8,7 +8,7 @@
     },
     "accountPage": {
         "portfolioSummaryTable": ".col-13",
-        "stocksTable": ".col-13"
+        "assetsTable": ".col-13"
     },
     "bankingPage": {
         "transfersNode": "section"

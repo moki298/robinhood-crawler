@@ -5,15 +5,15 @@ const { getFormattedPriceInFloat, isReturnNegative, lowerCaseFirstLetter, stripW
 
 class AccountPage {
     crawl = async (page) => {
-        // get stocks data from account 
+        // get asset data from account 
         await page.goto('https://robinhood.com/account', {
             waitUntil: 'networkidle0'
         })
         // await wait(5000)
 
-        const scrapedStockData = await page.$$eval(selectors.accountPage.stocksTable, (arr) => {
+        const scrapedData = await page.$$eval(selectors.accountPage.assetsTable, (arr) => {
             return arr.map((div, index) => {
-                if (index === 1) {
+                if (index === 1) {      // for stocks
                     let childNodes = div.firstChild.childNodes[1].childNodes
 
                     return Array.from(childNodes).map(node => {
@@ -23,19 +23,26 @@ class AccountPage {
                     return Array.from(div.childNodes).map(node => {
                         return node.innerText
                     })
+                } else if (index == 2) {    // for crypto assets
+                    let childNodes = div.firstChild.childNodes[1].childNodes
+
+                    return Array.from(childNodes).map(node => {
+                        return node.innerText
+                    })
                 }
             })
         })
 
-        const { stocks, totalPortfolioValue } = this.cleanScrapedData(scrapedStockData);
+        const { crypto, stocks, totalPortfolioValue } = this.cleanScrapedData(scrapedData);
 
-        return { stocks, totalPortfolioValue }
+        return { crypto, stocks, totalPortfolioValue }
     }
 
-    cleanScrapedData = (scrapedStockData) => {
+    cleanScrapedData = (scrapedData) => {
         const totalPortfolioValue = {}
+        const data = {}
 
-        scrapedStockData[0].map(valueString => {
+        scrapedData[0].map(valueString => {
             let formattedValueData = valueString.split('\n')
             let valueTypeName = stripWhiteSpace(formattedValueData[0])
             valueTypeName = lowerCaseFirstLetter(valueTypeName)
@@ -43,7 +50,7 @@ class AccountPage {
             totalPortfolioValue[valueTypeName] = getFormattedPriceInFloat(formattedValueData[2], 1)
         })
 
-        const stocks = scrapedStockData[1].map(stockString => {
+        const stocks = scrapedData[1].map(stockString => {
             let formattedStockData = stockString.split('\n')
             let averageCost = getFormattedPriceInFloat(formattedStockData[4], 1)
             let currentMarketPrice = getFormattedPriceInFloat(formattedStockData[3], 1)
@@ -62,10 +69,34 @@ class AccountPage {
             }
         })
 
-        return {
-            stocks,
-            totalPortfolioValue
+        data['stocks'] = stocks
+        data['totalPortfolioValue'] = totalPortfolioValue
+
+        // if crypto assets exist
+        if (scrapedData.length === 3 && scrapedData[2] !== null) {
+            const crypto = scrapedData[2].map(cryptoString => {
+                let formattedCryptoData = cryptoString.split('\n')
+                let averageCost = getFormattedPriceInFloat(formattedCryptoData[4], 1)
+                let currentPrice = getFormattedPriceInFloat(formattedCryptoData[3], 1)
+                let equity = getFormattedPriceInFloat(formattedCryptoData[6], 1)
+                let coinCount = Number(formattedCryptoData[2])
+                let totalReturn = isReturnNegative(averageCost, currentPrice, coinCount) ? (-1 * (getFormattedPriceInFloat(formattedCryptoData[5]), 1)) : getFormattedPriceInFloat(formattedCryptoData[5], 1)
+
+                return {
+                    averageCost,
+                    currentPrice,
+                    equity,
+                    coinName: formattedCryptoData[0],
+                    coinCount,
+                    tickrSymbol: formattedCryptoData[1],
+                    totalReturn
+                }
+            })
+
+            data['crypto'] = crypto
         }
+
+        return data
     }
 }
 
