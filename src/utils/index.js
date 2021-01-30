@@ -5,6 +5,8 @@ const writeFile = util.promisify(fs.writeFile);
 
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
+const screenLogger = require('./logger').screenLogger
+
 exports.createDataFolderIfRequired = function () {
     return new Promise((resolve, reject) => {
         fs.mkdir(`${path.join(__dirname, '/../../data')}`, {}, function (err) {
@@ -24,7 +26,7 @@ exports.createDataFolderIfRequired = function () {
 
 exports.getCookiesAndSave = async function (page) {
     const cookies = await page.cookies()
-    console.info("cookies are ", cookies);
+    screenLogger.info("Cookies are ", cookies);
 
     await writeFile(`${path.join(__dirname, '/../../rh-cookies.json')}`, JSON.stringify(cookies, null, 2), 'utf8');
     // also set `logged_in` cookie after logging-in in the JSON file

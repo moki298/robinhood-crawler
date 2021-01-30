@@ -10,5 +10,6 @@ node_modules
 
 credentials.json
 .env
+log.txt
 stocks.json
 stocks.csv
