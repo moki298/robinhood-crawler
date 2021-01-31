@@ -47,15 +47,23 @@ class TransferPage {
 
             const stateData = dataStrings.map(string => {
                 const [transferTypeInfo, transferDateInfo, transferAmount] = string.split('\n')
-                const transferDate = getValidDateWithYear(transferDateInfo)
-                const transferType = transferTypeInfo.includes('Deposit') ? 'deposit' : 'withdrawal'
 
-                totalAmountInvested = totalAmountInvested + getFormattedPriceInFloat(transferAmount, 2)
+                if (transferAmount === 'Canceled') {
+                    return {
+                        transferType: 'Canceled',
+                        transferDate: transferDateInfo,
+                        transferAmount: 0
+                    }
+                } else {
+                    const transferDate = getValidDateWithYear(transferDateInfo)
+                    const transferType = transferTypeInfo.includes('Deposit') ? 'deposit' : 'withdrawal'
+                    totalAmountInvested = totalAmountInvested + getFormattedPriceInFloat(transferAmount, 2)
 
-                return {
-                    transferType,
-                    transferDate,
-                    transferAmount: getAbsolutePriceInFloat(transferAmount, 2),
+                    return {
+                        transferType,
+                        transferDate,
+                        transferAmount: getAbsolutePriceInFloat(transferAmount, 2),
+                    }
                 }
             })
 
