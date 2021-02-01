@@ -4,7 +4,8 @@
         "passwordField": "input[type='password']",
         "signInButton": "footer button span",
         "mfaField": "input[name='mfa_code']",
-        "continueButton": "button[type='submit']"
+        "continueButton": "button[type='submit']",
+        "smsConfirmationButton": "button[type='button']"
     },
     "accountPage": {
         "portfolioSummaryTable": ".col-13",
