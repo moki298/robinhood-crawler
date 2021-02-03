@@ -59,14 +59,14 @@ require('dotenv').config();
     let data = {
         crypto,
         dividendData,
-        humanReadableTimeStampInLocalZone: new Date().toLocaleString(),
+        humanizedLocalTime: new Date().toLocaleString(),
         portfolioDistribution,
         sectorDistribution,
-        totalPortfolioValue,
-        transferInfo,
         stocks,
         stockCount: stocks.length,
         timeStampInMilliSecs,
+        totalPortfolioValue,
+        transferInfo,
     }
 
     // create data folder if it doesn't exist
