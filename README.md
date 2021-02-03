@@ -42,7 +42,7 @@ The data scraped is written to stocks.json file in the data directory, it contai
 | portfolioDistribution | Object | contains portfolio distribution in percentages, includes Stocks, ETFs, Crypto, Options |
 | sectorDistribution | Object | contains sector distribution scraped from [profile](https://robinhood.com/profile) page |
 | stocks | Array | lists all the stocks owned |
-| stockCount | Number | toal number of stocks owned|
+| stockCount | Number | total number of stocks owned|
 | timeStampInMilliSecs | Number | Unix time stamp in milli secs |
 | totalPortfolioValue | Object | contains total portfolio value scraped from [account](https://robinhood.com/account) page|
 | transferInfo | Object | contains bank deposits and withdrawals information|
