@@ -31,12 +31,11 @@ Currently the tool scrapes the following data from the app and stores it in a JS
 
 ## Output
 
-The data scraped is written to stocks.json file in the data directory, it contains the following properties
+The data scraped is written to stocks.json file in the data directory, it contains the following properties(inside parent Object named data)
 
 | Property        | Type           | Description  |
 | :------------- |:-------------:| :-----|
 | crypto     | Array      |   contains crypto information |
-| data      | Object | parent property |
 | dividendData | Object |  contains dividend information |
 | humanizedLocalTime | String |  human interpretable local time |
 | portfolioDistribution | Object | contains portfolio distribution in percentages, includes Stocks, ETFs, Crypto, Options |
