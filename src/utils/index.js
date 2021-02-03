@@ -54,7 +54,7 @@ exports.getAbsolutePriceInFloat = function (value, charCountToRemove) {
     return parseFloat(value.substring(charCountToRemove).replace(',', ''));
 }
 
-exports.getSavedCookiesFromJSON = async function () {
+exports.setCookiesFromJSON = async function () {
     const cookiesString = await fs.readFileSync(`${__dirname}/../../rh-cookies.json`, 'utf8');
     return JSON.parse(cookiesString)
 }

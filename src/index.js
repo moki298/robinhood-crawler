@@ -5,12 +5,12 @@ const screenLogger = require('./utils/logger').screenLogger
 const utils = require('./utils');
 
 const { AccountPage, BankingPage, DividendPage, LoginPage, ProfilePage, TransferPage } = crawlers
-const { createDataFolderIfRequired, getCookiesAndSave, getCurrentTimeInMilliSecs, getSavedCookiesFromJSON, writeStocksToExcelSheet, writeDataToJSONFile } = utils;
+const { createDataFolderIfRequired, getCookiesAndSave, getCurrentTimeInMilliSecs, setCookiesFromJSON, writeStocksToExcelSheet, writeDataToJSONFile } = utils;
 
 require('dotenv').config();
 
 (async () => {
-    // const cookies = await getSavedCookiesFromJSON()
+    // const cookies = await setCookiesFromJSON()
 
     screenLogger.info(`Launching Chrome`)
     const browser = await puppeteer.launch({
