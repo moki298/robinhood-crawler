@@ -3,7 +3,8 @@
         "usernameField": "input[name='username']",
         "passwordField": "input[type='password']",
         "signInButton": "footer button span",
-        "mfaField": "input[name='mfa_code']",
+        "mfaFieldForTwoFactAuth": "input[name='mfa_code']",
+        "mfaFieldForSMS": "input[name='response']",
         "continueButton": "button[type='submit']",
         "smsConfirmationButton": "button[type='button']"
     },
