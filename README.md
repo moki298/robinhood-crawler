@@ -13,6 +13,7 @@ Currently the tool scrapes the following data from the app and stores it in a JS
 - Transfer history from https://robinhood.com/account/history?type=transfers
 
 ## Prerequisites
+- Mac OS
 - Node JS and npm(prefer node version 12+)
 
 ## Installation and Setup Instructions:
@@ -25,13 +26,13 @@ Currently the tool scrapes the following data from the app and stores it in a JS
 ## Scraping Data:
 
 - Once the setup is done, run `npm start` from the terminal for the tool to start scraping
-- When requested to enter OTP(the tool should pass here waiting for the user input), carefully click inside the input field and enter the six digit code, the program should resume automatically once all the six digits are entered
+- The user will be asked to enter a six digit code, the code can be OTP through sms or from the Authenticaor app depending on the user settings, the tool should pass here waiting for the user input. Click inside the input field and enter the six digit code(do not press enter or submit button), the program should resume automatically once all the six digits are typed
 - Scarping all the pages might take 2-3 minutes
 - The tool should exit automatically once scraping is done
 
 ## Output
 
-The data scraped is written to stocks.json file in the data directory, it contains the following properties(inside parent Object named data)
+The data scraped is written to stocks.json file in the data directory, it contains the following properties(inside parent object named `data`)
 
 | Property        | Type           | Description  |
 | :------------- |:-------------:| :-----|
