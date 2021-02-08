@@ -61,23 +61,23 @@ class DividendPage {
             dividendData[stateName] = stateData
         })
 
-        const totalDividenReceived = this.calculateTotalDividend(dividendData)
-        dividendData["totalDividenReceived"] = totalDividenReceived
+        const totalDividendReceived = this.calculateTotalDividend(dividendData)
+        dividendData["totalDividendReceived"] = totalDividendReceived
 
         return dividendData
     }
 
     calculateTotalDividend = dividendData => {
-        let totalDividenReceived = 0
+        let totalDividendReceived = 0
         const values = [...Object.values(dividendData)]
 
         values.forEach(eachState => {
             eachState.forEach(dividendInfo => {
-                totalDividenReceived = totalDividenReceived + dividendInfo.dividendAmount
+                totalDividendReceived = totalDividendReceived + dividendInfo.dividendAmount
             })
         })
 
-        return parseFloat(totalDividenReceived.toFixed(2))
+        return parseFloat(totalDividendReceived.toFixed(2))
     }
 }
 
