@@ -5,7 +5,7 @@
 Use this tool to scrape portfolio data from your [Robinhood](http://www.robinhood.com/) account
 
 
-Currently the tool scrapes the following data from the app and stores it in a JSON file:
+Currently the tool scrapes the following data from the website and stores it in a JSON file:
 
 - Stocks data from https://robinhood.com/account
 - Dividends history from https://robinhood.com/account/history?type=dividends
