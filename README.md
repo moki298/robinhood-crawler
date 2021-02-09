@@ -49,5 +49,6 @@ The data scraped is written to stocks.json file in the data directory, it contai
 
 ## Note
 
+- The tool also outputs a csv file `stocks.csv` in the data folder. This file can be directly used to upload portfolio data to https://www.simplysafedividends.com/
 - The tool supports accounts with Two-Factor Authentication(2FA) turned on, just enter the One Time Password(OTP) in the webpage when requested and the app should successfully log you in and start scraping data
 - The tool does not yet support accounts which does options trading.
