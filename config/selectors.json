@@ -3,9 +3,9 @@
         "usernameField": "input[name='username']",
         "passwordField": "input[type='password']",
         "signInButton": "footer button span",
-        "mfaFieldForTwoFactAuth": "input[name='mfa_code']",
+        "mfaFieldForTwoFactAuth": "input[autocomplete='one-time-code']",
         "mfaFieldForSMS": "input[name='response']",
-        "continueButton": "button[type='submit']",
+        "continueButton": "#react_root > div:nth-child(3) > div > div:nth-child(3) > div > div > section > div > footer > div.css-1fast4h > button",
         "smsConfirmationButton": "button[type='button']"
     },
     "accountPage": {
