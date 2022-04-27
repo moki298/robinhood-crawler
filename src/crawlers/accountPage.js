@@ -1,7 +1,7 @@
 const selectors = require('../../config/selectors.json')
 const utils = require('../utils');
 
-const { getFormattedPriceInFloat, isReturnNegative, lowerCaseFirstLetter, stripWhiteSpace } = utils;
+const { getFormattedPriceInFloat, isReturnNegative, lowerCaseFirstLetter, stripWhiteSpace, stripComma } = utils;
 
 class AccountPage {
     crawl = async (page) => {
@@ -55,7 +55,7 @@ class AccountPage {
             let averageCost = getFormattedPriceInFloat(formattedStockData[4], 1)
             let currentMarketPrice = getFormattedPriceInFloat(formattedStockData[3], 1)
             let equity = getFormattedPriceInFloat(formattedStockData[6], 1)
-            let shareCount = Number(formattedStockData[2])
+            let shareCount = Number(stripComma(formattedStockData[2]))
             let totalReturn = isReturnNegative(averageCost, currentMarketPrice, shareCount) ? (-1 * (getFormattedPriceInFloat(formattedStockData[5], 1))) : getFormattedPriceInFloat(formattedStockData[5], 1)
 
             return {
@@ -79,7 +79,7 @@ class AccountPage {
                 let averageCost = getFormattedPriceInFloat(formattedCryptoData[4], 1)
                 let currentPrice = getFormattedPriceInFloat(formattedCryptoData[3], 1)
                 let equity = getFormattedPriceInFloat(formattedCryptoData[6], 1)
-                let coinCount = Number(formattedCryptoData[2])
+                let coinCount = Number(stripComma(formattedCryptoData[2]))
                 let totalReturn = isReturnNegative(averageCost, currentPrice, coinCount) ? (-1 * (getFormattedPriceInFloat(formattedCryptoData[5], 1))) : getFormattedPriceInFloat(formattedCryptoData[5], 1)
 
                 return {

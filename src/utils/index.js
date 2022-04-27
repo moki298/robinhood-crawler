@@ -110,6 +110,10 @@ exports.autoScrollToBottom = async function (page) {
     });
 }
 
+exports.stripComma = function (string) {
+    return string.replace(',', '')
+}
+
 exports.stripWhiteSpace = function (string) {
     return string.replace(/\s+/g, '')
 }
